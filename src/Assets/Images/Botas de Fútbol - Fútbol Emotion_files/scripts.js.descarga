@@ -1,0 +1,1001 @@
+// Consulta Ajax Estandar, colocando el resultado en una capa
+function consultaAjax(capaDestino, url, id, funcioncompletado, mantenerContenidoAnterior) {
+
+    if (mantenerContenidoAnterior) {
+        
+        let loadingBox = document.createElement('div');
+        loadingBox.id = 'imagenCargandoConsultaAjax';
+        loadingBox.classList.add('clearfix');
+        loadingBox.style.zIndex = '10';
+        loadingBox.style.textAlign = 'center';
+        loadingBox.style.margin = '10px auto';
+        loadingBox.style.paddingBottom = '15px';
+        loadingBox.innerHTML = '<img width="32" height="32" src="' + rutawebficheros + '/imagesEstructura/loader.gif">';
+        document.querySelector('#' + capaDestino)?.append(loadingBox);
+    
+    } else {
+
+        let loadingBox = document.createElement('div');
+        loadingBox.classList.add('d-flex', 'align-items-center', 'p-3');
+        loadingBox.innerHTML = '<img width="16" height="16" src="' + rutawebficheros + '/imagesEstructura/cargando.gif"><span class="ms-2">Cargando ...</span>';
+        document.querySelector('#' + capaDestino)?.append(loadingBox);
+    
+    }
+
+    $.ajax({
+            type: 'GET',
+            url: rutaweb + url,
+            data: {
+                id: id
+            },
+            dataType: 'html'
+        })
+    .done(function(responseData) {
+        if (capaDestino) {
+            if (mantenerContenidoAnterior) {
+                $('#' + capaDestino).append(responseData);
+                $('#imagenCargandoConsultaAjax').remove();
+            } else {
+                $('#' + capaDestino).html(responseData);
+            }
+        }
+
+        if (funcioncompletado) {
+            eval(funcioncompletado);
+        }
+    })
+    .fail(function() {
+        //alert('Ocurrió un error.');
+    });
+}
+
+// Consulta Ajax POST, colocando el resultado en una capa
+function consultaAjaxPost(capaDestino, url, parametros, funcioncompletado, mantenerContenidoAnterior) {
+    if (mantenerContenidoAnterior) {
+
+        let loadingBox = document.createElement('div');
+        loadingBox.id = 'imagenCargandoConsultaAjax';
+        loadingBox.classList.add('clearfix');
+        loadingBox.style.zIndex = '10';
+        loadingBox.style.textAlign = 'center';
+        loadingBox.style.margin = '10px auto';
+        loadingBox.style.paddingBottom = '15px';
+        loadingBox.innerHTML = '<img width="32" height="32" src="' + rutawebficheros + '/imagesEstructura/loader.gif">';
+        document.querySelector('#' + capaDestino)?.append(loadingBox);
+
+    } else {
+
+        let loadingBox = document.createElement('div');
+        loadingBox.classList.add('d-flex', 'align-items-center', 'p-3');
+        loadingBox.innerHTML = '<img width="16" height="16" src="' + rutawebficheros + '/imagesEstructura/cargando.gif"><span class="ms-2">Cargando ...</span>';
+        document.querySelector('#' + capaDestino)?.append(loadingBox);
+
+    }
+
+    $.ajax({
+            type: 'POST',
+            url: rutaweb + url,
+            data: {
+                parametros: parametros
+            },
+            contentType: "application/x-www-form-urlencoded",
+        })
+    .done(function(responseData) {
+        if (capaDestino) {
+            if (mantenerContenidoAnterior) {
+                $('#' + capaDestino).append(responseData);
+                $('#imagenCargandoConsultaAjax').remove();
+            } 
+            else {
+                $('#' + capaDestino).html(responseData);
+            }
+        }
+
+        if (funcioncompletado) {
+            eval(funcioncompletado);
+        }
+    })
+    .fail(function() {
+        //alert('Ocurrió un error.');
+    });
+}
+
+// Consulta Ajax Estandar, colocando el resultado en una capa
+function consultaAjaxFormulario(capaDestino, url, id_formulario, funcioncompletado, mantenerContenidoAnterior) {
+    if (!mantenerContenidoAnterior) {
+        $('#' + capaDestino).html('<img src="' + rutawebficheros + '/imagesEstructura/cargando.gif"> Cargando.');
+    } else {
+        $('#' + capaDestino).append('<div style="position: absolute; top: 15px; right: 15px; z-index: 10"><img src="' + rutawebficheros + '/imagesEstructura/cargando.gif"> Cargando.</div>');
+    }
+    $("#" + id_formulario).ajaxSubmit({
+            url: rutaweb + url,
+            success: function(responseData) {
+                if (capaDestino) {
+                    $('#' + capaDestino).html(responseData);
+                }
+
+                if (funcioncompletado) {
+                    eval(funcioncompletado);
+                }
+            },
+            error: function() {
+                //alert('Ocurrió un error.');
+            }
+        }
+
+    );
+}
+
+// Consulta Ajax Estandar, sin resultado visible
+function consultaAjaxSimple(url, id, funcioncompletado) {
+    $.ajax({
+            type: 'GET',
+            url: url,
+            data: {
+                id: id
+            },
+            dataType: 'html'
+        })
+    .done(function(responseData) {
+        if (funcioncompletado) {
+            eval(funcioncompletado);
+        }
+    })
+    .fail(function() {
+        //alert('Ocurrió un error.');
+    });
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+
+    let botonAnular = document.querySelectorAll('.botonAnular');
+    botonAnular.forEach(element => {
+        element.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            let id = element.getAttribute("data-id");
+            let tipo_formulario = element.getAttribute("data-formu");
+            let urlAlb = element.getAttribute("data-url");
+
+            if(tipo_formulario !== ""){
+                let tipo = "";
+                if(tipo_formulario === "formuIBAN"){
+                    tipo = "";
+                    let formularioIBAN = document.querySelector("#formuIBAN");
+                    formularioIBAN.innerHTML = "";
+                    let formularioExtendido = document.querySelector("#formuExtendido");
+                    formularioExtendido.innerHTML = "";    
+                }else if(tipo_formulario === "formuExtendido"){
+                    tipo = "completo"
+                    let formularioIBAN = document.querySelector("#formuIBAN");
+                    formularioIBAN.innerHTML = "";
+                    let formularioExtendido = document.querySelector("#formuExtendido");
+                    formularioExtendido.innerHTML = "";
+                }
+
+                //TODO: Funcion en jquery
+                consultaAjax(tipo_formulario, urlAlb + "formbancario" + tipo + "ajax/format/html/?id=" + id);
+            }
+
+            Swal.fire({
+                title: anularAlbaranTextos.tituloBoton,
+                input: 'select',
+                inputOptions: anularAlbaranTextos.razones,
+                inputPlaceholder: '-- ' + anularAlbaranTextos.eligeUnaRazon + ' --',
+                html: anularAlbaranTextos.pregunta,
+                icon: 'warning',
+                customClass: 'swal-wide',
+                showCancelButton: true,
+                confirmButtonColor: '#f53f3f',
+                cancelButtonColor: '#222222',
+                confirmButtonText: anularAlbaranTextos.botonSi,
+                cancelButtonText: anularAlbaranTextos.botonNo,
+                reverseButtons: true,
+                inputValidator: function (value) {
+                    return new Promise(function (resolve, reject) {
+                    if (value !== '') {
+                        resolve();
+                    } else {
+                        resolve( anularAlbaranTextos.porfavorEligeUnaRazon + '.');
+                    }
+                    });
+                }
+            }).then(function (result) {
+                if (result.value) {
+                    let razon = result.value.split("_");
+                    let razon_id = razon[1];
+                    
+                    let comprobarExisteForm = setInterval(function() {
+                        let input = document.querySelector('input[name="razon_id"]');
+                        if (input) {
+                            input.value = razon_id;
+                            clearInterval(comprobarExisteForm);
+                        }
+                        }, 100); 
+                    
+                    //TODO: Funcion en jquery
+                    consultaAjax("anulacion-pedido", urlAlb + "anularpedidoajax/format/html?id=" + id + "&causa_anulacion=" + razon_id);
+                }
+            });
+        })
+    })
+});
+
+function zonaseguraConfirmarFormaEnvio(ruta_mercado, id_direccion, id_forma_envio) {
+
+    //Esta función se encuentra en el global
+    ejecutarDespues = 'cargarEventosFormasDePago();';
+
+    if (id_forma_envio) {
+        consultaAjax('formaspagodisponibles', '/' + ruta_mercado + '/zonasegura/index/formapagoajax/format/html/idformaenvio/' + id_forma_envio, id_direccion, ejecutarDespues);
+    } else {
+        consultaAjax('formaspagodisponibles', '/' + ruta_mercado + '/zonasegura/index/formapagoajax/format/html', id_direccion, ejecutarDespues);
+    }
+
+}
+
+function inicializarCarruselBanner(clase, numItems, numSm, numTab, numMov, nav, dots) {
+    if ($('.' + clase).length) {
+        $('.' + clase).owlCarousel({
+            nav: nav,
+            navText: ["<i class='fal fa-angle-left'></i>", "<i class='fal fa-angle-right'></i>"],
+            loop: false,
+            rewind: true,
+            autoplay: true,
+            slideSpeed: 400,
+            smartSpeed: 450,
+            dots: dots,
+            responsive: {
+                0: {
+                    items: numMov
+                },
+                768: {
+                    items: numTab
+                },
+                992: {
+                    items: numSm
+                },
+                1350: {
+                    items: numItems
+                }
+            },
+            paginationSpeed: 400,
+            singleItem: true,
+            animateOut: 'fadeOutLeft',
+            animateIn: 'fadeInRight',
+        });
+        $('.' + clase).mouseenter(function() {
+            $('.' + clase).trigger('stop.owl.autoplay')
+        });
+        $('.' + clase).mouseleave(function() {
+            $('.' + clase).trigger('play.owl.autoplay', [5000])
+        });
+    }
+}
+
+function inicializarCarruselDinamico(numItems, numMd, numSm, numTab, numMov, clase, infinito) {
+    if ($('.' + clase).length) {
+        $('.' + clase).owlCarousel({
+            nav: true,
+            navText: ["<i class='fal fa-angle-left'></i>", "<i class='fal fa-angle-right'></i>"],
+            loop: false,
+            rewind: infinito,
+            slideSpeed: 300,
+            responsive: {
+                0: {
+                    items: numMov
+                },
+                479: {
+                    items: numTab
+                },
+                768: {
+                    items: numSm
+                },
+                991: {
+                    items: numMd
+                },
+                1199: {
+                    items: numItems
+                }
+            },
+            paginationSpeed: 400,
+            singleItem: false
+        });
+    }
+}
+
+function inicializarCarruselDinamicoBts(xxl, xl, lg, md, sm, xs, clase, infinito) {
+    if ($('.' + clase).length) {
+        $('.' + clase).owlCarousel({
+            nav: true,
+            navText: ["<i class='fal fa-angle-left'></i>", "<i class='fal fa-angle-right'></i>"],
+            loop: infinito,
+            slideSpeed: 300,
+            responsive: {
+                0: {
+                    items: xs
+                },
+                576: {
+                    items: sm
+                },
+                768: {
+                    items: md
+                },
+                992: {
+                    items: lg
+                },
+                1199: {
+                    items: xl
+                },
+                1680: {
+                    items: xxl
+                }
+            },
+            paginationSpeed: 400,
+            singleItem: false
+        });
+    }
+}
+
+function inicializarTextAreasFormulario() {
+    try {
+        $(".noeditaux").remove();
+        $('.groupnoedit textarea').each(function(){
+            var decoded = $(this).val();
+            var buton = '';//'<p style="cursor:pointer;" class="form-control" onclick="copiarAlPortapapeles(\'copy'+$(this).attr("id")+'\')">Seleccionar</p>';
+            var text = '<div  class="noeditaux" style="background-color:white;border:1px solid #ced4da; padding:13px;"><span id="copy'+$(this).attr("id")+'">'+decoded+'</span>'+buton+'</div>';
+            $(this).before(text);
+            $(this).hide();
+        });
+        $('.editor textarea').each(function() {
+            value_of_textarea = this.value;
+			if ($(this).attr("name")=="cuerpo"){
+				$(this).wysiwyg({
+					rmUnusedControls: true,
+					controls: {
+						bold: { visible : true},
+						italic: { visible : true },
+						underline: { visible : true },
+						justifyLeft: { visible : true },						
+						justifyCenter: { visible : true },
+						strikeThrough: { visible : true },
+						superscript: { visible : true },
+						subscript: { visible : true },
+						separator: { visible : true },
+						undo: { visible : true },
+						redo: { visible : true },
+						indent: { visible : true },
+						outdent: { visible : true },
+						html: { visible : true },
+						insertOrderedList: { visible : true },
+						insertUnorderedList: { visible : true },
+						insertHorizontalRule: { visible : true },
+						code: { visible : true },
+						h1: { visible : true },
+						h2: { visible : true },
+						h3: { visible : true },
+						createLink: { visible : true },
+						unLink: { visible : true },
+						removeFormat: { visible : true }	,
+						insertTable: { visible : true }	,
+						/*insertProductos: {
+							groupIndex: 11,
+							icon:'/imagesEstructuraMotor/admin/shopping-cart-16.gif',
+							visible: true,
+							exec: function () {
+								var self = this;
+
+								if ($.wysiwyg.controls && $.wysiwyg.controls.productos) {
+									$.wysiwyg.controls.productos(this);
+								} else if ($.wysiwyg.autoload) {
+									$.wysiwyg.autoload.control("wysiwyg.productos.js", function () {
+										self.controls.insertProductos.exec.apply(self);
+									});
+								} else {
+									console.error("$.wysiwyg.controls.productos not defined. You need to include wysiwyg.productos.js file");
+								}
+							},
+							tags: ["productos"],
+							tooltip: "Insert productos"
+						},	*/				
+					},
+					autoGrow: true,
+					initialContent: function() {
+						return value_of_textarea;
+					}					
+				});
+				
+			$(this).wysiwyg("addControl", "productos", {
+				groupIndex: 11,
+				icon: '/imagesEstructura/admin/cms-anadir-producto.gif',
+				tooltip: 'Productos',
+				tags: ['productos'],
+				exec: function () {
+								var self = this;
+
+								if ($.wysiwyg.controls && $.wysiwyg.controls.productos) {
+									$.wysiwyg.controls.productos(this);
+								} else if ($.wysiwyg.autoload) {
+									$.wysiwyg.autoload.control("wysiwyg.productos.js", function () {
+										self.controls.insertProductos.exec.apply(self);
+									});
+								} else {
+									console.error("$.wysiwyg.controls.productos not defined. You need to include wysiwyg.productos.js file");
+								}
+				},
+				callback: function (event, Wysiwyg) {
+					//alert("callback triggered!");
+				}
+			});		
+
+			$(this).wysiwyg("addControl", "productoscolecciones", {
+				groupIndex: 11,
+				icon: '/imagesEstructura/admin/cms-anadir-coleccion.png',
+				tooltip: 'Colecciones',
+				tags: ['colecciones'],
+				exec: function () {
+								var self = this;
+
+								if ($.wysiwyg.controls && $.wysiwyg.controls.productoscolecciones) {
+									$.wysiwyg.controls.productoscolecciones(this);
+								} else if ($.wysiwyg.autoload) {
+									$.wysiwyg.autoload.control("wysiwyg.productoscolecciones.js", function () {
+										self.controls.insertProductos.exec.apply(self);
+									});
+								} else {
+									console.error("$.wysiwyg.controls.productoscolecciones not defined. You need to include wysiwyg.productoscolecciones.js file");
+								}
+				},
+				callback: function (event, Wysiwyg) {
+					//alert("callback triggered!");
+				}
+			});					
+				
+			}else{
+				//Lo conservo por histórico, pero claramente no funciona como esperamos (falta como mínimo el ocultar los elementos no visibles
+                if($(this).hasClass('noeditable')){
+                    var decoded = $(this).val();
+                    var text = '<div class="noeditaux" style="background-color:#e5e7eb;border:1px solid #ced4da; padding:13px;">'+decoded+'</div>';
+                    $(this).before(text);
+                    $(this).hide();
+                    
+                }else{
+                    $(this).wysiwyg({
+                        strikeThrough: {
+                            visible: true
+                        },
+                        underline: {
+                            visible: true
+                        },
+                        subscript: {
+                            visible: true
+                        },
+                        superscript: {
+                            visible: true
+                        },
+                        autoGrow: true,
+                        initialContent: function() {
+                            return value_of_textarea;
+                        },
+                        controls: "bold,italic,underline,|,undo,redo"
+                    });
+                }
+			}
+        });
+    } catch (e) {}
+}
+
+function desplegarFilasTabla(nombreElemento, ruta_mercado){
+    var elemento = $('[data-id="' + nombreElemento + '"]');
+    var visibilidad = elemento.css("display");
+    
+    if(visibilidad == "none"){
+        
+        $.ajax({
+            type: 'GET',
+            handleAs: 'text',
+            encoding: 'utf-8',
+            url: rutaweb + '/' + ruta_mercado + '/albaranes/detallealbaranlineascolectivoajax/format/html/',
+            data: 'id=' +  nombreElemento.replace("pedido-detalle-", ""),
+            dataType: 'html'
+        })
+        .done(function(responseData) {
+            if (responseData.indexOf("ERROR") == 0) {
+                alert(responseData.replace("ERROR|", ""));
+            }else{
+                elemento.html(responseData);
+            }
+        })
+        .fail(function() {
+            //alert('Ocurrió un error.');
+        });
+
+        elemento.css({
+            "opacity":0,
+            "display":"table-row",
+        }).show().animate({opacity:1}, {duration: 1000});
+        elemento.html("<td colspan='6'></td>");
+    }else{
+        elemento.css({
+            "opacity":1,
+            "display":"none",
+        }).hide().animate({opacity:0}, {duration: 1000});
+    } // if 
+}
+
+// Rating en zona de perfil
+document.querySelectorAll(".rating-comentario input").forEach(function (input) {
+    input.addEventListener("click", function () {
+        var id_producto = this.getAttribute("data-origen");
+        document.getElementById("notaProd_" + id_producto).value = this.value;
+    });
+});
+
+function guardarComentario(id_producto, ruta_mercado, idioma, recargar, mensaje_error) {
+    let notaProd = document.querySelector('#notaProd_' + id_producto).value;
+    let comment = document.querySelector('#comentario_' + id_producto).value.trim();
+    let cuponDescuento;
+
+    if (!notaProd || comment.length < 1) {
+        
+        Swal.fire('', mensaje_error, "error");
+    
+    } else {
+        if (cuponDescuento) {
+            document.querySelector('#opiniones_minimo_caracteres_' + id_producto).style.display = 'none';
+            document.querySelector('#opiniones_todo_mayusculas_' + id_producto).style.display = 'none';
+            document.querySelector('#comentario_' + id_producto).style.border = '';
+
+            if (comentario.length < 50) {
+                document.querySelector('#opiniones_minimo_caracteres_' + id_producto).style.display = 'block';
+                document.querySelector('#comentario_' + id_producto).style.border = 'solid #FF0000';
+            } else if (comentario === comentario.toUpperCase()) {
+                document.querySelector('#opiniones_todo_mayusculas_' + id_producto).style.display = 'block';
+                document.querySelector('#comentario_' + id_producto).style.border = 'solid #FF0000';
+            } else {
+                almacenarComentario(id_producto, cuponDescuento, ruta_mercado, idioma, recargar);
+            }
+        } else {
+            almacenarComentario(id_producto, cuponDescuento, ruta_mercado, idioma, recargar);
+        }
+    }
+}
+
+
+function almacenarComentario(id_producto, cuponDescuento, ruta_mercado, idioma, recargar) {
+    let form = document.querySelector('#formComentarios_' + id_producto);
+    let formData = new FormData(form);
+    let datosParams = new URLSearchParams(formData);
+    let datos = '?' + datosParams.toString();
+    let capaDestino = null;
+
+    if (id_producto === null) {
+        
+        capaDestino = 'ultimoComentario';
+        
+        if(document.querySelector('#' + capaDestino) && document.querySelector('#formComentarios_' + id_producto)) {
+            document.querySelector('#' + capaDestino).innerHTML = '<img src="' + rutawebficheros + '/imagesEstructura/cargando.gif"> Cargando.';
+        }
+
+        datos += '&mostrarComentario=1';
+    
+    } else {
+        
+        capaDestino = 'formulario_comentario_producto_' + id_producto;
+        datos += '&mostrarComentario=0';
+    
+    }
+    
+    if (cuponDescuento) {
+        datos += '&cuponDescuento=1';
+    } else {
+        datos += '&cuponDescuento=0';
+    }
+
+    datos += '&idProducto=' + id_producto;
+
+    fetch(rutaweb + '/' + ruta_mercado + '/productos/guardarcomentario/format/html/idioma/' + idioma + datos, { method: 'GET' })
+        .then(response => response.text())
+        .then(data => {
+            if(data !== 'COMENTARIO_VACIO'){
+                document.querySelector('#' + capaDestino).innerHTML = data;
+
+                if(id_producto === null){
+                    document.querySelector('#formularioComenta').style.display = 'none';
+                }
+    
+                if(recargar === true){
+                    window.location.reload(true);
+                }
+
+            }else if(id_producto === null){
+                document.querySelector('#' + capaDestino).innerHTML = '';
+            }  
+        })
+        .catch( error => {
+            alert('Error');
+            console.error(error)
+        })
+}
+
+function comprobarContenidoComentario(id_producto) {
+    let comentario = document.querySelector('#comentario_' + id_producto).value;
+    let opinionesMinimoCaracteres = document.querySelector('#opiniones_minimo_caracteres_' + id_producto);
+    let opinionesTodoMayusculas = document.querySelector('#opiniones_todo_mayusculas_' + id_producto);
+
+    if ((opinionesMinimoCaracteres.style.display === 'block') && (comentario.length >= 50)) {
+        opinionesMinimoCaracteres.style.display = 'none';
+        comentario.style.border = '';
+    } else if ((opinionesTodoMayusculas.style.display === 'block') && (comentario !== comentario.toUpperCase())) {
+        opinionesTodoMayusculas.style.display = 'none';
+        comentario.style.border = '';
+    }
+}
+
+function validarDireccion(elemento){
+    let cadena = document.querySelector('.' + elemento).value;
+    return /\d/.test(cadena);
+   
+}
+
+function validarCodigoPostal(elemento, nuevaDireccion){
+    var etiquetaPais = '';
+    if (nuevaDireccion) {
+        etiquetaPais = '_nueva_direccion';
+    }
+
+    if (listaProvincias[$('#id_pais' + etiquetaPais)[0].value] !== undefined &&
+        listaProvincias[$('#id_pais' + etiquetaPais)[0].value][$('#id_provincia' + etiquetaPais)[0].value] !== undefined &&
+        $('#id_provincia' + etiquetaPais)[0].value != 0){
+        codigos_postales = listaProvincias[$('#id_pais' + etiquetaPais)[0].value][$('#id_provincia' + etiquetaPais)[0].value].codigosPostales;
+        if(Object.entries(codigos_postales).length !== 0){
+            var cp = $('.' + elemento).val();
+            cp = parseInt(cp.split('-')[0]);
+            var encontrado = false;
+
+            for (var key in codigos_postales) {
+                if (codigos_postales.hasOwnProperty(key)) {
+                    var cod_desde = parseInt(codigos_postales[key].cod_desde);
+                    var cod_hasta = parseInt(codigos_postales[key].cod_hasta);
+
+
+                    if (cp >= cod_desde && cp <= cod_hasta) {
+                        encontrado = true;
+                        break;
+                    }
+                }
+            }
+
+            if (encontrado) {
+                return true;
+            } else {
+                return false;
+            }
+        } else{
+            return true;
+        }
+    }
+    return true;
+}
+
+function borrarCodigoPostal() {
+    window.addEventListener('DOMContentLoaded', ()=>{
+        document.getElementById("codigo_postal").value = "";
+    })
+}
+
+function resetearFormulario(idFormulario, campo){
+    let formInputs = document.querySelectorAll('#' + idFormulario + 'input[type="text"]');
+    
+    for(let input of formInputs){
+        if(input.id === campo){
+            input.value = "";
+        }
+    };
+}
+
+function actualizartotalcesta(importe_gastos_envio, importe_gastos_envio_alternativo, importe_gastos_envio_eur, importe_gastos_envio_eur_alternativo, decimales_divisa) {
+    // Actualizar precio de envío
+    const casillaPrecioEnvio = document.querySelector('#casilla_precio_envio .importe_precio');
+    const casillaPrecioEnvioEur = document.querySelector('#casilla_precio_envio_eur .importe_precio');
+
+    if (casillaPrecioEnvio) {
+        casillaPrecioEnvio.innerHTML = importe_gastos_envio;
+    }
+    if (casillaPrecioEnvioEur) {
+        casillaPrecioEnvioEur.innerHTML = importe_gastos_envio_eur;
+    }
+
+    // Actualizar total a pagar
+    const precioOriginalTotal = parseFloat(document.querySelector("#precio_original_total_cesta")?.innerHTML || 0);
+    const precioOriginalTotalEur = parseFloat(document.querySelector("#precio_original_total_cesta_eur")?.innerHTML || 0);
+    
+    if (document.querySelector('#casilla_precio_totalpagar .importe_precio')) {
+        const casillaPrecioTotalPagar = document.querySelector('#casilla_precio_totalpagar .importe_precio');
+        casillaPrecioTotalPagar.innerHTML = (importe_gastos_envio + precioOriginalTotal).toFixed(decimales_divisa);
+    }
+    if (document.querySelector('#casilla_precio_totalpagar_eur .importe_precio')) {
+        const casillaPrecioTotalPagarEur = document.querySelector('#casilla_precio_totalpagar_eur .importe_precio');
+        casillaPrecioTotalPagarEur.innerHTML = (importe_gastos_envio_eur + precioOriginalTotalEur).toFixed(2);
+    }
+
+    // Actualizar resumen de precio
+    const resumenPrecioElement = document.querySelector('span#resumen_precio .importe_precio');
+    if (resumenPrecioElement) {
+        const resumenPrecioActual = parseFloat(resumenPrecioElement.innerHTML || 0);
+        resumenPrecioElement.innerHTML = (importe_gastos_envio + resumenPrecioActual).toFixed(decimales_divisa);
+    }
+
+    // Actualizar precios alternativos si están disponibles
+    if (importe_gastos_envio_alternativo !== null) {
+        const envioAlternativoElement = document.querySelector('#casilla_precio_envio_alternativo .importe_precio');
+        const envioEurAlternativoElement = document.querySelector('#casilla_precio_envio_eur_alternativo .importe_precio');
+
+        if (envioAlternativoElement) {
+            envioAlternativoElement.innerHTML = importe_gastos_envio_alternativo;
+        }
+        if (envioEurAlternativoElement) {
+            envioEurAlternativoElement.innerHTML = importe_gastos_envio_eur_alternativo;
+        }
+    }
+}
+
+
+function orderTextSelectStates(options) {
+    var arr = new Array();
+    $.each(Object.keys(options), function(key, id) {
+        var obj = {
+            v: options[id].id_provincia,
+            t: options[id].nombre,
+        };
+        arr.push(obj);
+    });
+    arr.sort(function(o1, o2) {
+        return (o1.t).localeCompare(o2.t);
+    });
+
+    return arr;
+}
+
+//TODO: función sensible a ser usada en muchos sitios como registro de usuario o zonasegura, se llama desde php
+function cambioPaisUsuario(mensajeErrorIdentificacion, provincia) {
+    $('#id_provincia').find('option').remove();
+
+    if (listaProvincias[$('#id_pais')[0].value] != null) {
+        
+        const nombres = Object.values(listaProvincias[$('#id_pais')[0].value]);
+        var arr_states_ordered = orderTextSelectStates(nombres);
+
+        $.each(Object.keys(arr_states_ordered), function(i, _) {
+            $('#id_provincia').append($('<option>', {
+                value: arr_states_ordered[i].v
+            }).text(arr_states_ordered[i].t));
+        });
+
+        if ((provincia != null) && (provincia.trim() != '')) {
+            $("#id_provincia").val(provincia);
+            //$("#id_provincia").text(provincia);
+            $("#input_id_provincia").val(listaProvincias[$('#id_pais')[0].value][provincia].nombre);
+            $("#input_cod_desde").val(listaProvincias[$('#id_pais')[0].value][provincia].cod_desde);
+            $("#input_cod_hasta").val(listaProvincias[$('#id_pais')[0].value][provincia].cod_hasta);
+        } else {
+            $("#id_provincia").val($("#id_provincia option:first").val());
+            $("#input_id_provincia").val($("#id_provincia option:first").text());
+        }
+
+        $('select#id_provincia').attr('comprobar_seleccion_combobox', true);
+        $('select#id_provincia').attr('comprobar_seleccion_combobox_primero_valido', true);
+
+        $('#provincia_texto').val('');
+
+        if($('#id_provincia-envuelveelementos')){$('#id_provincia-envuelveelementos').css({'display': 'block'});}
+        if($('#id_provincia')){$('#id_provincia').parent().css({'display': 'block'});}
+        
+        if($('#provincia_texto-envuelveelementos')){$('#provincia_texto-envuelveelementos').css({'display': 'none'});}
+        if($('#provincia_texto')){$('#provincia_texto').parent().css({'display': 'none'});}
+
+        //$('#provincia_texto').attr('minLength', 0);
+        $('#provincia_texto').attr('expresionregular', '.{0,30}');
+    }
+    else {
+        if($('#id_provincia-envuelveelementos')){$('#id_provincia-envuelveelementos').css({'display': 'none'});}
+        if($('#id_provincia')){$('#id_provincia').parent().css({'display': 'none'});}
+        
+        if($('#provincia_texto-envuelveelementos')){$('#provincia_texto-envuelveelementos').css({'display': 'block'});}
+        if($('#provincia_texto')){$('#provincia_texto').parent().css({'display': 'block'});}
+
+        $('select#id_provincia').removeAttr('comprobar_seleccion_combobox');
+        $('select#id_provincia').attr('comprobar_seleccion_combobox_primero_valido');
+
+        //$("#provincia_texto").attr('minLength', 2);
+        $("#provincia_texto").attr('expresionregular', '.{2,30}');
+
+        if (provincia != null) {
+            $("#provincia_texto").val(provincia);
+        }
+
+        $("#input_id_provincia").val('');
+        $("#id_provincia").val();
+    }
+
+    validarCodigoPostal('cp-formulario', false);
+
+    /* Formato DNI */
+    if ($("#dni")) {
+        if (listaPaises[$('#id_pais')[0].value]['nombreNumeroIdentificacion']) {
+            $("#dni-label label").text(listaPaises[$('#id_pais')[0].value]['nombreNumeroIdentificacion'] + ':');
+
+            if (listaPaises[$('#id_pais')[0].value]['formatoNumeroIdentificacion']) {
+                $("#dni").attr("expresionregular", listaPaises[$('#id_pais')[0].value]['formatoNumeroIdentificacion']);
+                $("#dni").attr('maxlength', listaPaises[$('#id_pais')[0].value]['longitudNumeroIdentificacion']);
+
+                if (listaPaises[$('#id_pais')[0].value]['ejemploNumeroIdentificacion']) {
+                    $("#dni").attr("title", listaPaises[$('#id_pais')[0].value]['nombreNumeroIdentificacion'] +
+                        ' ' + mensajeErrorIdentificacion + ': ' +
+                        listaPaises[$('#id_pais')[0].value]['ejemploNumeroIdentificacion']);
+                }
+                else {
+                    $("#dni").attr("title", listaPaises[$('#id_pais')[0].value]['nombreNumeroIdentificacion'] +
+                        ' ' + mensajeErrorIdentificacion);
+                }
+            }
+            else {
+                $("#dni").attr("expresionregular", '.+');
+                $("#dni").attr('maxlength', 50);
+                $("#dni").attr("title", listaPaises[$('#id_pais')[0].value]['nombreNumeroIdentificacion'] + ' ' + mensajeErrorIdentificacion);
+            }
+
+            if($('#dni-envuelveelementos')){$('#dni-envuelveelementos').css({'display': 'block'});}
+            if($('#dni')){$('#dni').parent().css({'display': 'block'})};
+        }
+        else {
+            $("#dni").attr("expresionregular", '.*');
+            if($('#dni-envuelveelementos')){$('#dni-envuelveelementos').css({'display': 'none'})};
+            if($('#dni')){$('#dni').parent().css({'display': 'none'})};
+        }
+
+        if ($("#dni-label label").hasClass('required')){
+            $("#dni-label label").text(listaPaises[$('#id_pais')[0].value]['nombreNumeroIdentificacion'] + ': (*)');
+        }
+    }
+    /* Fin Formato DNI */
+
+    /* Formato del código postal */
+    $("#codigo_postal").attr("expresionregular", listaPaises[$('#id_pais')[0].value]['formatoCodigoPostal']);
+    $("#codigo_postal").attr("maxlength", listaPaises[$('#id_pais')[0].value]['longitudCodigoPostal']);
+
+    /* Fin Formato del código postal */
+
+    /* Formato apellidos */
+    // Probamos a permitir que los españoles metan un único apellido
+    //if ($('#id_pais')[0].value == 1) {
+    //    $("#apellidos").attr("expresionregular", '[^ ]+[ ]+.+');
+    //}
+    //else {
+    $("#apellidos").attr("expresionregular", '.+');
+    //}
+    /* Fin Formato apellidos */
+
+    /* Longitud del número de teléfono para España y Portugal */
+    if (($('#id_pais')[0].value == 1) || ($('#id_pais')[0].value == 2)) {
+        $('#telefono').attr('expresionregular', '[0-9 \(\)\+]{9,30}');
+    }
+    else {
+        $('#telefono').attr('expresionregular', '[0-9 \(\)\+]{5,30}');
+    }
+    /* Longitud del número de teléfono para España y Portugal */
+
+    /* Descripción del campo "Población" para Portugal */
+    if ($('#id_pais')[0].value == 2) {
+        if ($('#poblacion').parent().parent().find('.hint')) {
+            $('#poblacion').parent().parent().find('.hint').remove();
+        }
+
+        $('#poblacion').parent().parent().append('<dd class="hint" style="color:#666666;font-size:10px;">Ej: Maia (Gueifães)</dd>');
+    }
+    else {
+        $('#poblacion').parent().parent().find('.hint').remove();
+    }
+    /* Fin Descripción del campo "Población" para Portugal */
+
+    /* Cambio del título del campo "Provincia" según el tipo de división territorial del país seleccionado */
+    $('#id_provincia-label label').text(listaPaises[$('#id_pais')[0].value]['nombreDivisionTerritorial'] + ': (*)');
+
+    // Si el país seleccionado es México mostramos el campo "Entre calles"
+    if (($('#id_pais')[0].value == 31)) {
+
+        if($('#entre_calles-envuelveelementos')){
+            $('#entre_calles-envuelveelementos').css({'display': 'block'});
+        }
+
+        if($('#entre_calles')){
+            $('#entre_calles').parent().css({'display' : 'block'});
+        }
+    }
+    else {
+        $('#entre_calles-envuelveelementos').css({'display': 'none'});
+
+        $('#entre_calles').parent().css({'display' : 'none'});
+
+        $('#entre_calles').val('');
+    }
+}
+
+function cambioPaisNuevaDireccion(provincia) {
+    $('#id_provincia_nueva_direccion').find('option').remove();
+
+    if (listaProvincias[$('#id_pais_nueva_direccion')[0].value] != null) {
+        const nombres = Object.values(listaProvincias[$('#id_pais_nueva_direccion')[0].value]);
+        var arr_states_ordered = orderTextSelectStates(nombres);
+        $.each(Object.keys(arr_states_ordered), function(i, _) {
+            $('#id_provincia_nueva_direccion').append($('<option>', {
+                value: arr_states_ordered[i].v
+            }).text(arr_states_ordered[i].t));
+        });
+
+        if ((provincia != null) && (provincia.trim() != '')) {
+            $("#id_provincia_nueva_direccion").val(provincia);
+            $("#input_id_provincia_nueva_direccion").val(listaProvincias[$('#id_pais_nueva_direccion')[0].value][provincia].nombre);
+        } else {
+            $("#id_provincia_nueva_direccion").val($("#id_provincia_nueva_direccion option:first").val());
+            $("#input_id_provincia_nueva_direccion").val($("#id_provincia_nueva_direccion option:first").text());
+        }
+
+        $('select#id_provincia_nueva_direccion').attr('comprobar_seleccion_combobox', true);
+
+        $('#provincia_texto_nueva_direccion').val('');
+
+        $('#id_provincia_nueva_direccion-envuelveelementos').css({
+            'display': 'block'
+        });
+        $('#provincia_texto_nueva_direccion-envuelveelementos').css({
+            'display': 'none'
+        });
+
+        //$('#provincia_texto').attr('minLength', 0);
+        $('#provincia_texto_nueva_direccion').attr('expresionregular', '.{0,30}');
+    } else {
+        $('#id_provincia_nueva_direccion-envuelveelementos').css({
+            'display': 'none'
+        });
+        $('#provincia_texto_nueva_direccion-envuelveelementos').css({
+            'display': 'block'
+        });
+
+        $('select#id_provincia_nueva_direccion').removeAttr('comprobar_seleccion_combobox');
+
+        //$("#provincia_texto").attr('minLength', 2);
+        $("#provincia_texto_nueva_direccion").attr('expresionregular', '.{2,30}');
+
+        if (provincia != null) {
+            $("#provincia_texto_nueva_direccion").val(provincia);
+        }
+
+        $("#input_id_provincia_nueva_direccion").val('');
+        $("#id_provincia_nueva_direccion").val();
+    }
+
+    validarCodigoPostal('cp-formulario', true);
+
+    /* Formato del código postal */
+    $("#codigo_postal_nueva_direccion").attr("expresionregular", listaPaises[$('#id_pais_nueva_direccion')[0].value]['formatoCodigoPostal']);
+    $("#codigo_postal_nueva_direccion").attr("maxlength", listaPaises[$('#id_pais_nueva_direccion')[0].value]['longitudCodigoPostal']);
+
+    /* Cambio del título del campo "Provincia" según el tipo de división territorial del país seleccionado */
+    let id_pais = document.querySelector('#id_pais_nueva_direccion').value;
+    let envuelveelementos = document.querySelector('#id_provincia_nueva_direccion-envuelveelementos');
+    envuelveelementos.querySelector('label').innerText = listaPaises[id_pais]['nombreDivisionTerritorial'] + ': (*)';
+
+
+    // Si el país seleccionado es México mostramos el campo "Entre calles"
+    if ($('#id_pais_nueva_direccion')[0].value == 31) {
+        $('#entre_calles-envuelveelementos').css({
+            'display': 'block'
+        });
+    } else {
+        $('#entre_calles-envuelveelementos').css({
+            'display': 'none'
+        });
+
+        $('#entre_calles').val('');
+    }
+}
